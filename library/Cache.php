@@ -24,7 +24,9 @@ class Cache {
 
     protected function writeToFilesystem($content, $filePath) {
         if(!is_dir(dirname($filePath))) {
+            $oldumask = umask(0);
             mkdir(dirname($filePath), 0777, true);
+            umask($oldumask);
         }
 
         file_put_contents($filePath, $content);
