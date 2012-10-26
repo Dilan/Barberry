@@ -30,7 +30,6 @@ class Plugin_Ffmpeg_Converter implements Plugin_Interface_Converter {
                 // detect original
                 $cmd = 'ffmpeg -i '.escapeshellarg($source).' 2>&1 | grep bitrate';
                 $output = shell_exec($cmd);
-                file_put_contents(__FILE__.'.log', $output.PHP_EOL, FILE_APPEND);
                 if (preg_match('|bitrate: (\d+)|', $output, $matches)) {
                     $video_params = ' -b '.escapeshellarg(intval($matches[1]).'k').' ';
                 } else {
@@ -47,7 +46,6 @@ class Plugin_Ffmpeg_Converter implements Plugin_Interface_Converter {
             $cmd = 'nice -n 0 ffmpeg -i '.escapeshellarg($source).
                 ' '.$resize_params.$video_params.$audio_params.' -sn -strict experimental '.escapeshellarg($destination).' 2>&1';
             passthru($cmd, $error);
-            file_put_contents(__FILE__.'.log', $cmd.PHP_EOL, FILE_APPEND);
             $msg = ob_get_clean();
         } elseif ($this->targetContentType->isImage()) {
             $resize_params = ($command->width() && $command->height()) ? ' -s '.escapeshellarg($command->width().'x'.$command->height()).' ' : '';
@@ -58,8 +56,6 @@ class Plugin_Ffmpeg_Converter implements Plugin_Interface_Converter {
                 ' '.$resize_params.' -sn -an -ss '.escapeshellarg($screen_params).' -r 1 -vframes 1 -f mjpeg '.escapeshellarg($destination).' 2>&1';
             passthru($cmd, $error);
             $msg = ob_get_clean();
-        } else {
-            file_put_contents(__FILE__.'.log',var_export($this->targetContentType,1).PHP_EOL.PHP_EOL, FILE_APPEND);
         }
         ob_end_clean();
         if (is_file($destination) && !$error) {
